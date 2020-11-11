@@ -1,3 +1,7 @@
+.PHONY: clean
+clean:
+	rm -Rf ./build
+
 .PHONY: build
 build:
 	go build -o ./build/radiotray
@@ -5,3 +9,10 @@ build:
 .PHONY: win
 win:
 	go build -o ./build/radiotray.win.exe -ldflags "-H=windowsgui"
+
+.PHONY: darwin-app
+darwin-app:
+	make build
+	mkdir -p ./build
+	cp -r ./lib/RadioTrayBase.app ./build/RadioTray.app
+	cp ./build/radiotray ./build/RadioTray.app/Contents/MacOS

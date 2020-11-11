@@ -1,11 +1,19 @@
 // Package config implement config struct and loading
 package config
 
+import (
+	"fmt"
+	"io/ioutil"
+	"os"
+
+	"gopkg.in/yaml.v2"
+)
+
 type Config struct {
 	Radios []*Radio `yaml:"radios"`
 
 	// ChangedCH on config change
-	ChangedCH chan bool
+	ChangedCH chan bool `yaml:"-"`
 }
 
 func New() *Config {
@@ -17,7 +25,31 @@ func New() *Config {
 
 // Load yaml config from fs
 func (cfg *Config) Load() error {
-	return nil
+	configFilePath := fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
+
+	if fileExists(configFilePath) {
+		yamlBytes, err := ioutil.ReadFile(configFilePath)
+		if err != nil {
+			return err
+		}
+
+		// Try to unmarshal config
+		if err := yaml.Unmarshal(yamlBytes, cfg); err == nil {
+			return nil
+		}
+	}
+
+	return cfg.Write()
+}
+
+func (cfg *Config) Write() error {
+	configFilePath := fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
+	yamlBytes, err := yaml.Marshal(cfg)
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(configFilePath, yamlBytes, 0644)
 }
 
 func (cfg *Config) SetDefaults() {
@@ -32,4 +64,14 @@ func (cfg *Config) SetDefaults() {
 		Source: "https://icecast.radiofrance.fr/franceinter-midfi.mp3",
 		Format: "mp3",
 	})
+}
+
+// fileExists checks if a file exists and is not a directory before we
+// try using it to prevent further errors.
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
 }

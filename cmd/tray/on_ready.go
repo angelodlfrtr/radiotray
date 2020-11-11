@@ -13,7 +13,16 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 	return func() {
 		// systray.SetTitle("Radio tray")
 		systray.SetTooltip("Play radios your loving")
-		systray.SetTemplateIcon(Icon(), Icon())
+
+		setDefaultIcon := func() {
+			systray.SetIcon(Icon())
+		}
+
+		setPlayingIcon := func() {
+			systray.SetIcon(IconRedBytes())
+		}
+
+		setDefaultIcon()
 
 		// Prepare radio menu items
 		radioMenuItems := []*systray.MenuItem{}
@@ -34,6 +43,7 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 			for {
 				select {
 				case <-stopItem.ClickedCh:
+					setDefaultIcon()
 					uncheckRadioItems()
 					player.Stop()
 					stopItem.Disable()
@@ -51,6 +61,7 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 					uncheckRadioItems()
 					itm.Check()
 					stopItem.Enable()
+					setPlayingIcon()
 					select {
 					case RadioSelectCH <- radio:
 					default:
