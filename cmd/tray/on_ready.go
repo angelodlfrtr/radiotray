@@ -2,13 +2,13 @@ package tray
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"time"
 
 	"github.com/angelodlfrtr/radiotray/cmd/config"
-	"github.com/angelodlfrtr/radiotray/cmd/launchd"
 	"github.com/angelodlfrtr/radiotray/cmd/player"
 	"github.com/getlantern/systray"
+	autostart "github.com/protonmail/go-autostart"
 )
 
 func onReady(cfg *config.Config, cbFunc func()) func() {
@@ -89,9 +89,13 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 		)
 
 		// Check if lauchd service exist and is enable
-		// @TODO: check working
-		lnchdSrvc := launchd.NewService("radiotray")
-		if lnchdSrvc.HasPlist() {
+		lnchApp := &autostart.App{
+			Name:        "radiotray",
+			DisplayName: "RadioTray",
+			Exec:        []string{os.Args[0]},
+		}
+
+		if lnchApp.IsEnabled() {
 			lauchdServiceMenuItem.Check()
 		}
 
@@ -99,22 +103,17 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 			for {
 				select {
 				case <-lauchdServiceMenuItem.ClickedCh:
-					lnchdSrvc := launchd.NewService("radiotray")
-					if lnchdSrvc.HasPlist() {
-						lnchdSrvc.Uninstall(5 * time.Second)
+					if lnchApp.IsEnabled() {
+						if err := lnchApp.Disable(); err != nil {
+							log.Println("ERR", err)
+						}
+
 						lauchdServiceMenuItem.Uncheck()
 					} else {
-						// Create & install plist
-						plist := launchd.NewPlist(
-							"radiotray",
-							os.Args[0],
-							nil,
-							nil,
-							"",
-							"",
-						)
+						if err := lnchApp.Enable(); err != nil {
+							log.Println("ERR", err)
+						}
 
-						lnchdSrvc.Install(plist, 5*time.Second)
 						lauchdServiceMenuItem.Check()
 					}
 				}

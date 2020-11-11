@@ -12,6 +12,7 @@ win:
 
 .PHONY: darwin-app
 darwin-app:
+	make clean
 	make build
 	mkdir -p ./build
 	cp -r ./lib/RadioTrayBase.app ./build/RadioTray.app
