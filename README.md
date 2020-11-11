@@ -1,5 +1,7 @@
 # RadioTray
 
+![Logo](./lib/icons/radio.red.128.png)
+
 Radio in your tray bar.
 
 ## Installation
