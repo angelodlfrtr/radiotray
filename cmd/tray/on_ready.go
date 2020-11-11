@@ -3,8 +3,10 @@ package tray
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/angelodlfrtr/radiotray/cmd/config"
+	"github.com/angelodlfrtr/radiotray/cmd/launchd"
 	"github.com/angelodlfrtr/radiotray/cmd/player"
 	"github.com/getlantern/systray"
 )
@@ -77,7 +79,47 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 			go handleRadioItemEvents(radioItem, r)
 		}
 
+		// Settings / quit
 		systray.AddSeparator()
+
+		// Install / Uninstall launchd service
+		lauchdServiceMenuItem := systray.AddMenuItem(
+			"Run at startup",
+			"Enable / disable run at starup",
+		)
+
+		// Check if lauchd service exist and is enable
+		// @TODO: check working
+		lnchdSrvc := launchd.NewService("radiotray")
+		if lnchdSrvc.HasPlist() {
+			lauchdServiceMenuItem.Check()
+		}
+
+		go func() {
+			for {
+				select {
+				case <-lauchdServiceMenuItem.ClickedCh:
+					lnchdSrvc := launchd.NewService("radiotray")
+					if lnchdSrvc.HasPlist() {
+						lnchdSrvc.Uninstall(5 * time.Second)
+						lauchdServiceMenuItem.Uncheck()
+					} else {
+						// Create & install plist
+						plist := launchd.NewPlist(
+							"radiotray",
+							os.Args[0],
+							nil,
+							nil,
+							"",
+							"",
+						)
+
+						lnchdSrvc.Install(plist, 5*time.Second)
+						lauchdServiceMenuItem.Check()
+					}
+				}
+			}
+		}()
 
 		// Quit app
 		mQuit := systray.AddMenuItem("Quit", "Quit radio tray")
