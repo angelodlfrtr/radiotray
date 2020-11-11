@@ -84,8 +84,8 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 
 		// Install / Uninstall launchd service
 		lauchdServiceMenuItem := systray.AddMenuItem(
-			"Run at startup",
-			"Enable / disable run at starup",
+			"Run at login",
+			"Enable / disable run at login",
 		)
 
 		// Check if lauchd service exist and is enable
