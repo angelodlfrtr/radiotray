@@ -25,10 +25,8 @@ func New() *Config {
 
 // Load yaml config from fs
 func (cfg *Config) Load() error {
-	configFilePath := fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
-
-	if fileExists(configFilePath) {
-		yamlBytes, err := ioutil.ReadFile(configFilePath)
+	if fileExists(ConfigFilePath()) {
+		yamlBytes, err := ioutil.ReadFile(ConfigFilePath())
 		if err != nil {
 			return err
 		}
@@ -43,13 +41,12 @@ func (cfg *Config) Load() error {
 }
 
 func (cfg *Config) Write() error {
-	configFilePath := fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
 	yamlBytes, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(configFilePath, yamlBytes, 0644)
+	return ioutil.WriteFile(ConfigFilePath(), yamlBytes, 0644)
 }
 
 func (cfg *Config) SetDefaults() {
@@ -64,6 +61,10 @@ func (cfg *Config) SetDefaults() {
 		Source: "https://icecast.radiofrance.fr/franceinter-midfi.mp3",
 		Format: "mp3",
 	})
+}
+
+func ConfigFilePath() string {
+	return fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
 }
 
 // fileExists checks if a file exists and is not a directory before we

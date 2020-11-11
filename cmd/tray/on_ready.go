@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/angelodlfrtr/radiotray/cmd/config"
 	"github.com/angelodlfrtr/radiotray/cmd/player"
@@ -116,6 +117,23 @@ func onReady(cfg *config.Config, cbFunc func()) func() {
 
 						lauchdServiceMenuItem.Check()
 					}
+				}
+			}
+		}()
+
+		// Settings
+		settingsMenuEntry := systray.AddMenuItem(
+			"Settings",
+			"Edit settings",
+		)
+
+		go func() {
+			for {
+				select {
+				case <-settingsMenuEntry.ClickedCh:
+					go func() {
+						exec.Command("open", config.ConfigFilePath()).Output()
+					}()
 				}
 			}
 		}()

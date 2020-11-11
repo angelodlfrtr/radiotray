@@ -4,7 +4,6 @@ package cmd
 import (
 	"log"
 
-	// "github.com/faiface/beep"
 	"github.com/angelodlfrtr/radiotray/cmd/config"
 	"github.com/angelodlfrtr/radiotray/cmd/player"
 	"github.com/angelodlfrtr/radiotray/cmd/tray"
@@ -24,8 +23,5 @@ func Main() {
 				player.Play(r)
 			}
 		}
-
-		done := make(chan bool)
-		<-done
 	})
 }
