@@ -6,6 +6,7 @@ import (
 
 	"github.com/angelodlfrtr/radiotray/cmd/config"
 	"github.com/angelodlfrtr/radiotray/cmd/player"
+	"github.com/angelodlfrtr/radiotray/cmd/settings"
 	"github.com/angelodlfrtr/radiotray/cmd/tray"
 )
 
@@ -16,11 +17,28 @@ func Main() {
 		log.Fatal(err)
 	}
 
+	// Init settings
+	// settings.Init()
+
 	tray.Init(cfg, func() {
 		for {
 			select {
 			case r := <-tray.RadioSelectCH:
-				player.Play(r)
+				if err := player.Play(r); err != nil {
+					log.Println("ERROR", err)
+					continue
+				}
+
+				tray.SetPlayingIcon()
+				tray.EnableStopItem()
+			case <-tray.StopCH:
+				player.Stop()
+
+				tray.UncheckRadioItems()
+				tray.SetDefaultIcon()
+				tray.DisableStopItem()
+			case <-tray.SettingsCH:
+				settings.Open()
 			}
 		}
 	})
