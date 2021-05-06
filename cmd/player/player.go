@@ -1,4 +1,4 @@
-// Package playe load audio streams and play to speaker
+// Package player load audio streams and play to speaker
 package player
 
 import (
@@ -37,6 +37,7 @@ func Play(radio *config.Radio) error {
 	return nil
 }
 
+// Stop player
 func Stop() {
 	if _currentStreamer != nil {
 		(*_currentStreamer).Close()

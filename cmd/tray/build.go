@@ -12,6 +12,7 @@ import (
 
 var stopItem *systray.MenuItem
 
+// Build tray menu
 func Build(cfg *config.Config) {
 	SetTooltip("Play radios your loving")
 	SetDefaultIcon()
@@ -22,13 +23,10 @@ func Build(cfg *config.Config) {
 
 	// Listen for stop click
 	go func() {
-		for {
+		for range stopItem.ClickedCh {
 			select {
-			case <-stopItem.ClickedCh:
-				select {
-				case StopCH <- true:
-				default:
-				}
+			case StopCH <- true:
+			default:
 			}
 		}
 	}()
@@ -37,17 +35,14 @@ func Build(cfg *config.Config) {
 	systray.AddSeparator()
 
 	handleRadioItemEvents := func(itm *systray.MenuItem, radio *config.Radio) {
-		for {
+		for range itm.ClickedCh {
+			UncheckRadioItems()
+			itm.Check()
+			stopItem.Enable()
+			SetPlayingIcon()
 			select {
-			case <-itm.ClickedCh:
-				UncheckRadioItems()
-				itm.Check()
-				stopItem.Enable()
-				SetPlayingIcon()
-				select {
-				case RadioSelectCH <- radio:
-				default:
-				}
+			case RadioSelectCH <- radio:
+			default:
 			}
 		}
 	}
@@ -80,22 +75,19 @@ func Build(cfg *config.Config) {
 	}
 
 	go func() {
-		for {
-			select {
-			case <-lauchdServiceMenuItem.ClickedCh:
-				if lnchApp.IsEnabled() {
-					if err := lnchApp.Disable(); err != nil {
-						log.Println("ERR", err)
-					}
-
-					lauchdServiceMenuItem.Uncheck()
-				} else {
-					if err := lnchApp.Enable(); err != nil {
-						log.Println("ERR", err)
-					}
-
-					lauchdServiceMenuItem.Check()
+		for range lauchdServiceMenuItem.ClickedCh {
+			if lnchApp.IsEnabled() {
+				if err := lnchApp.Disable(); err != nil {
+					log.Println("ERR", err)
 				}
+
+				lauchdServiceMenuItem.Uncheck()
+			} else {
+				if err := lnchApp.Enable(); err != nil {
+					log.Println("ERR", err)
+				}
+
+				lauchdServiceMenuItem.Check()
 			}
 		}
 	}()
@@ -107,13 +99,10 @@ func Build(cfg *config.Config) {
 	)
 
 	go func() {
-		for {
+		for range settingsMenuEntry.ClickedCh {
 			select {
-			case <-settingsMenuEntry.ClickedCh:
-				select {
-				case SettingsCH <- true:
-				default:
-				}
+			case SettingsCH <- true:
+			default:
 			}
 		}
 	}()

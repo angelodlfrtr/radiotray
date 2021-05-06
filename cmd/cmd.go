@@ -10,6 +10,7 @@ import (
 	"github.com/angelodlfrtr/radiotray/cmd/tray"
 )
 
+// Main func call
 func Main() {
 	// Load config
 	cfg := config.New()

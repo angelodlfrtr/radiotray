@@ -1,17 +1,21 @@
-// Package settings
+// Package settings contain setting window specific code
 package settings
 
+// @TODO
+
 import (
-	"github.com/webview/webview"
+// "github.com/webview/webview"
 )
 
-var view webview.WebView
+// var view webview.WebView
 
+// Init settings
 func Init() {
-	view = webview.New(true)
+	// view = webview.New(true)
 	// defer view.Destroy()
 }
 
+// Open settings
 func Open() {
 	// debug := true
 	// w := webview.New(debug)

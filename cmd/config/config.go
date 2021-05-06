@@ -9,6 +9,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+// Config contains radios available
 type Config struct {
 	Radios []*Radio `yaml:"radios"`
 
@@ -16,6 +17,7 @@ type Config struct {
 	ChangedCH chan bool `yaml:"-"`
 }
 
+// New config with defaults
 func New() *Config {
 	cfg := &Config{}
 	cfg.SetDefaults()
@@ -25,8 +27,8 @@ func New() *Config {
 
 // Load yaml config from fs
 func (cfg *Config) Load() error {
-	if fileExists(ConfigFilePath()) {
-		yamlBytes, err := ioutil.ReadFile(ConfigFilePath())
+	if fileExists(FilePath()) {
+		yamlBytes, err := ioutil.ReadFile(FilePath())
 		if err != nil {
 			return err
 		}
@@ -40,15 +42,17 @@ func (cfg *Config) Load() error {
 	return cfg.Write()
 }
 
+// Write config to disk
 func (cfg *Config) Write() error {
 	yamlBytes, err := yaml.Marshal(cfg)
 	if err != nil {
 		return err
 	}
 
-	return ioutil.WriteFile(ConfigFilePath(), yamlBytes, 0644)
+	return ioutil.WriteFile(FilePath(), yamlBytes, 0644)
 }
 
+// SetDefaults on config
 func (cfg *Config) SetDefaults() {
 	cfg.Radios = append(cfg.Radios, &Radio{
 		Name:   "TSF Jazz",
@@ -63,7 +67,8 @@ func (cfg *Config) SetDefaults() {
 	})
 }
 
-func ConfigFilePath() string {
+// FilePath returns default config file path
+func FilePath() string {
 	return fmt.Sprintf("%s/.radiotray.yaml", os.Getenv("HOME"))
 }
 
