@@ -2,7 +2,7 @@
 
 ![Logo](./lib/icons/radio.red.128.png)
 
-Radio in your tray bar for MacOS
+Radio in your tray bar for MacOS and Linux
 
 ## Installation
 
