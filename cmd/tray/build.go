@@ -7,6 +7,7 @@ import (
 
 	"github.com/angelodlfrtr/radiotray/cmd/config"
 	"github.com/getlantern/systray"
+	"github.com/kardianos/osext"
 	autostart "github.com/protonmail/go-autostart"
 )
 
@@ -64,10 +65,15 @@ func Build(cfg *config.Config) {
 	)
 
 	// Check if lauchd service exist and is enable
+	lnchAppExec, err := osext.Executable()
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	lnchApp := &autostart.App{
 		Name:        "radiotray",
 		DisplayName: "RadioTray",
-		Exec:        []string{os.Args[0]},
+		Exec:        []string{lnchAppExec},
 	}
 
 	if lnchApp.IsEnabled() {
